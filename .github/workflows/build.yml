@@ -126,7 +126,8 @@ jobs:
   deploy:
     needs: [ build ]
     runs-on: ubuntu-latest
-    environment: dev
+    environment:
+      name: dev (v99.99-${{ github.run_id }})
     steps:
       - name: Noop
         run: echo "Deploy second build to dev environment!"
