@@ -114,7 +114,7 @@ jobs:
           args: release --clean --skip validate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GORELEASER_CURRENT_TAG: v99.99-${{ github.run_id }} # TODO: dev package versioning
+          GORELEASER_CURRENT_TAG: v99.99-${{ github.run_number }} # TODO: dev package versioning
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
