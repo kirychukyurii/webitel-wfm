@@ -126,6 +126,7 @@ jobs:
   deploy:
     needs: [ build ]
     runs-on: ubuntu-latest
+    environment: dev
     steps:
       - name: Noop
         run: echo
