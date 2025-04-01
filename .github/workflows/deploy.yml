@@ -7,29 +7,32 @@ jobs:
   build:
     uses: ./.github/workflows/build.yml
 
+  # Install .deb pkg from artifact
   deploy-dev:
     needs: [ build ]
     runs-on: ubuntu-latest
     environment: dev
     steps:
-      # Install .deb pkg from artifact
       - name: Noop
         run: echo "Deploy build to dev environment!"
 
+  # Request approves for build
+  # Install .deb pkg from artifact
   deploy-test:
     needs: [ build ]
     runs-on: ubuntu-latest
     environment: test
     steps:
-      # Request approves for build
-      # Install .deb pkg from artifact
       - name: Noop
         run: echo "Deploy build to test environment!"
 
-  publish:
+  # Request approves for build
+  # Publish pkg to repository
+  # Install .deb pkg via apt
+  deploy-stage:
     needs: [ deploy-test ]
     runs-on: ubuntu-latest
-    environment: test
+    environment: stage
     steps:
       - name: Noop
-        run: echo "Publish dev release to S3!"
+        run: echo "Deploy build to stage environment!"
