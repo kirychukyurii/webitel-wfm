@@ -43,6 +43,6 @@ runs:
         deb-s3 upload ${SOURCE_NAME} \
           --bucket "${AWS_BUCKET_NAME}"
           --s3-region "${AWS_DEFAULT_REGION}" \
-          --arch amd64
-          --component dev
-          --codename bookworm
+          --arch amd64 \
+          --component dev \
+          --codename bookworm 
