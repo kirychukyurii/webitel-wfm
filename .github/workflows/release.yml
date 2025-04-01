@@ -12,7 +12,8 @@ jobs:
   # Upload release to the repository.
   release:
     needs: [ build ]
-    runs-on: self-hosted
+    runs-on:
+      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Noop
         run: echo "Upload release to repository!"
@@ -20,7 +21,8 @@ jobs:
   # If it is the latest release - deploy it to stage environment.
   deploy:
     needs: [ build ]
-    runs-on: self-hosted
+    runs-on:
+      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
     environment: prod
     steps:
       - name: Noop

@@ -12,7 +12,8 @@ jobs:
 
   analyze:
     needs: [ prepare ]
-    runs-on: self-hosted
+    runs-on:
+      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -44,7 +45,8 @@ jobs:
 
   lint:
     needs: [ prepare ]
-    runs-on: self-hosted
+    runs-on:
+      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -66,7 +68,8 @@ jobs:
 
   test:
     needs: [ prepare ]
-    runs-on: self-hosted
+    runs-on:
+      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -89,7 +92,8 @@ jobs:
 
   build:
     needs: [ prepare ]
-    runs-on: self-hosted
+    runs-on:
+      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
