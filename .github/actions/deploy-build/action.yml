@@ -23,7 +23,7 @@ runs:
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ inputs.host }}
-        username: ubuntu
+        username: admin
         key: ${{ inputs.private-key }}
         source: ${{ inputs.source-name }}
         target: /home/ubuntu/dist
