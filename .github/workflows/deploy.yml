@@ -30,8 +30,15 @@ jobs:
     runs-on: ubuntu-latest
     environment: test
     steps:
-      - name: Noop
-        run: echo "Deploy build to test environment!"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy artifact
+        uses: ./.github/actions/deploy-build
+        with:
+          host: ${{ vars.HOST_IP }}
+          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source-name: webitel-wfm-*.deb
 
   # Request approves for build
   # Publish pkg to repository
@@ -41,5 +48,12 @@ jobs:
     runs-on: ubuntu-latest
     environment: stage
     steps:
-      - name: Noop
-        run: echo "Deploy build to stage environment!"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy artifact
+        uses: ./.github/actions/deploy-build
+        with:
+          host: ${{ vars.HOST_IP }}
+          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source-name: webitel-wfm-*.deb
