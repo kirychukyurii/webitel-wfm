@@ -12,7 +12,7 @@ jobs:
   # Upload release to the repository.
   release:
     needs: [ build ]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Noop
         run: echo "Upload release to repository!"
@@ -20,7 +20,7 @@ jobs:
   # If it is the latest release - deploy it to stage environment.
   deploy:
     needs: [ build ]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     environment: prod
     steps:
       - name: Noop

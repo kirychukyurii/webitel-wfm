@@ -10,7 +10,7 @@ jobs:
   # Install .deb pkg from artifact
   deploy-dev:
     needs: [ build ]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     environment: dev
     steps:
       - name: Checkout repository
@@ -27,7 +27,7 @@ jobs:
   # Install .deb pkg from artifact
   deploy-test:
     needs: [ build ]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     environment: test
     steps:
       - name: Checkout repository
@@ -45,7 +45,7 @@ jobs:
   # Install .deb pkg via apt
   deploy-stage:
     needs: [ deploy-test ]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     environment: stage
     steps:
       - name: Checkout repository
