@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     steps:
-      - name: Noop
-        run: echo "Deploy build to dev environment!"
+      - name: Deploy artifact
+        uses: ./.github/actions/deploy-build
 
   # Request approves for build
   # Install .deb pkg from artifact

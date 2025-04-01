@@ -1,0 +1,26 @@
+runs:
+  using: "composite"
+  steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: build-packages
+
+    - name: Copy build
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ vars.HOST_IP }}
+        username: ubuntu
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: webitel-wfm-*.deb
+        target: /home/ubuntu/dist
+
+    - name: Install
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ vars.HOST_IP }}
+        username: ubuntu
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          sudo dpkg -i /home/ubuntu/dist/webitel-wfm-*.deb
+          rm /home/ubuntu/dist/webitel-wfm-*.deb
