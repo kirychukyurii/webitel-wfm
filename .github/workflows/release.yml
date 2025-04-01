@@ -1,0 +1,27 @@
+on:
+  push:
+    branches:
+      - v*.* # Only release branches
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  # We don't have a stage environment for each release,
+  # so assume changes are tested.
+  # Upload release to the repository.
+  release:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Noop
+        run: echo "Upload release to repository!"
+
+  # If it is the latest release - deploy it to stage environment.
+  deploy:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    environment: stage
+    steps:
+      - name: Noop
+        run: echo "Deploy latest release to stage environment!"

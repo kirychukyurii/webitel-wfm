@@ -1,0 +1,35 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+
+  deploy-dev:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      # Install .deb pkg from artifact
+      - name: Noop
+        run: echo "Deploy build to dev environment!"
+
+  deploy-test:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+      # Request approves for build
+      # Install .deb pkg from artifact
+      - name: Noop
+        run: echo "Deploy build to test environment!"
+
+  publish:
+    needs: [ deploy-test ]
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+      - name: Noop
+        run: echo "Publish dev release to S3!"

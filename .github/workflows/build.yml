@@ -1,8 +1,6 @@
 on:
-  push:
-    branches:
-      - main
   pull_request:
+  workflow_call:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -122,11 +120,3 @@ jobs:
           name: build-packages
           compression-level: 9
           path: dist/webitel-wfm-*.*
-
-  deploy:
-    needs: [ build ]
-    runs-on: ubuntu-latest
-    environment: dev
-    steps:
-      - name: Noop
-        run: echo "Deploy second build to dev environment!"
