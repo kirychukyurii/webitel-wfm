@@ -1,3 +1,16 @@
+inputs:
+  host:
+    required: true
+    description: ""
+
+  private-key:
+    required: true
+    description: ""
+
+  source-name:
+    required: true
+    description: ""
+
 runs:
   using: "composite"
   steps:
@@ -9,18 +22,18 @@ runs:
     - name: Copy build
       uses: appleboy/scp-action@v0.1.7
       with:
-        host: ${{ vars.HOST_IP }}
+        host: ${{ inputs.host }}
         username: ubuntu
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: webitel-wfm-*.deb
+        key: ${{ inputs.private-key }}
+        source: ${{ inputs.source-name }}
         target: /home/ubuntu/dist
 
     - name: Install
       uses: appleboy/ssh-action@v1
       with:
-        host: ${{ vars.HOST_IP }}
+        host: ${{ inputs.host }}
         username: ubuntu
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        key: ${{ inputs.private-key }}
         script: |
-          sudo dpkg -i /home/ubuntu/dist/webitel-wfm-*.deb
-          rm /home/ubuntu/dist/webitel-wfm-*.deb
+          sudo dpkg -i /home/ubuntu/dist/${{ inputs.source-name }}
+          rm /home/ubuntu/dist/${{ inputs.source-name }}

@@ -18,6 +18,10 @@ jobs:
 
       - name: Deploy artifact
         uses: ./.github/actions/deploy-build
+        with:
+          host: ${{ vars.HOST_IP }}
+          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source-name: webitel-wfm-*.deb
 
   # Request approves for build
   # Install .deb pkg from artifact
