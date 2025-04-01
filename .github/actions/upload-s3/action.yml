@@ -1,3 +1,24 @@
+inputs:
+  aws-secret-id:
+    required: true
+    description: ""
+
+  aws-secret-key:
+    required: true
+    description: ""
+
+  aws-bucket-region:
+    required: true
+    description: ""
+
+  aws-bucket-name:
+    required: true
+    description: ""
+
+  source-name:
+    required: true
+    description: ""
+
 runs:
   using: "composite"
   steps:
@@ -12,4 +33,16 @@ runs:
 
     - name: Publish packages
       shell: bash
-      run: echo "Publish package to S3!"
+      env:
+        SOURCE_NAME: ${{ inputs.source-name }}
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-secret-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-key }}
+        AWS_DEFAULT_REGION: ${{ inputs.aws-bucket-region }}
+        AWS_BUCKET_NAME: ${{ inputs.aws-bucket-name }}
+      run: |
+        deb-s3 upload ${SOURCE_NAME} \
+          --bucket "${AWS_BUCKET_NAME}"
+          --s3-region "${AWS_DEFAULT_REGION}" \
+          --arch amd64
+          --component dev
+          --codename bookworm

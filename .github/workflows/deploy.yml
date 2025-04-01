@@ -60,14 +60,10 @@ jobs:
           name: build-packages
 
       - name: Publish build
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-2
-        run: |
-          deb-s3 upload webitel-wfm-*.deb \
-            --bucket "webitel-deb-pkg"
-            --s3-region "${AWS_DEFAULT_REGION}" \
-            --arch amd64
-            --component dev
-            --codename bookworm
+        uses: ./.github/actions/upload-s3
+        with:
+          source-name: webitel-wfm-*.deb
+          aws-bucket-name: webitel-deb-pkg
+          aws-bucket-region: us-east-2
+          aws-secret-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
