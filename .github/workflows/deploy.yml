@@ -27,7 +27,7 @@ jobs:
   # Request approves for build
   # Install .deb pkg from artifact
   deploy-test:
-    needs: [ build ]
+    needs: [ build, deploy-dev ]
     runs-on:
       - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
     environment: test
