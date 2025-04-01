@@ -32,7 +32,7 @@ runs:
       uses: appleboy/ssh-action@v1
       with:
         host: ${{ inputs.host }}
-        username: ubuntu
+        username: admin
         key: ${{ inputs.private-key }}
         script: |
           sudo dpkg -i /home/ubuntu/dist/${{ inputs.source-name }}
