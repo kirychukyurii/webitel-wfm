@@ -7,11 +7,45 @@ concurrency:
   cancel-in-progress: ${{ !contains(github.ref, 'release/')}} # TODO: change to match our release version pattern
 
 jobs:
-  prepare:
-    uses: ./.github/workflows/prepare.yml
+  dependencies:
+    runs-on:
+      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go (version from go.mod)
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Install tools
+        run: go install tool
+
+      - name: Generate code
+        run: go generate
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-code-go
+          compression-level: 9
+          path: gen/go
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-code-wire
+          compression-level: 9
+          path: cmd/wire_gen.go
 
   analyze:
-    needs: [ prepare ]
+    needs: [ dependencies ]
     runs-on:
       - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
@@ -44,7 +78,7 @@ jobs:
         uses: github/codeql-action/analyze@v3
 
   lint:
-    needs: [ prepare ]
+    needs: [ dependencies ]
     runs-on:
       - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
@@ -67,7 +101,7 @@ jobs:
           version: v1.64.7
 
   test:
-    needs: [ prepare ]
+    needs: [ dependencies ]
     runs-on:
       - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
@@ -91,7 +125,7 @@ jobs:
         run: grep --color=never -e '--- PASS:' -e '--- FAIL:' test.log | sed 's/[:()]//g' | awk '{print $2,$3,$4}' | sort -t' ' -nk3 -r | awk '{sum += $3; print $1,$2,$3,sum"s"}'
 
   build:
-    needs: [ prepare ]
+    needs: [ dependencies ]
     runs-on:
       - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
