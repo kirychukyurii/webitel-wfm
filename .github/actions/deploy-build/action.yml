@@ -26,7 +26,7 @@ runs:
         username: admin
         key: ${{ inputs.private-key }}
         source: ${{ inputs.source-name }}
-        target: /home/ubuntu/dist
+        target: ~/dist
 
     - name: Install
       uses: appleboy/ssh-action@v1
@@ -35,5 +35,5 @@ runs:
         username: admin
         key: ${{ inputs.private-key }}
         script: |
-          sudo dpkg -i /home/ubuntu/dist/${{ inputs.source-name }}
-          rm /home/ubuntu/dist/${{ inputs.source-name }}
+          sudo dpkg -i ~/dist/${{ inputs.source-name }}
+          rm ~/dist/${{ inputs.source-name }}
