@@ -56,10 +56,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - name: Deploy artifact
+        uses: ./.github/actions/deploy-build
         with:
-          name: build-packages
+          host: ${{ vars.HOST_IP }}
+          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source-name: webitel-wfm-*.deb
 
       - name: Publish build
         uses: ./.github/actions/upload-s3

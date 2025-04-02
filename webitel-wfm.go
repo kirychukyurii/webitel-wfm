@@ -11,6 +11,7 @@ import (
 //go:generate wire gen ./cmd
 
 func main() {
+	_ = ""
 	if err := cmd.Run(); err != nil {
 		return
 	}
