@@ -41,6 +41,7 @@ runs:
         AWS_BUCKET_NAME: ${{ inputs.aws-bucket-name }}
       run: |
         deb-s3 upload ${SOURCE_NAME} \
+          --visibility nil \
           --bucket "${AWS_BUCKET_NAME}" \
           --s3-region "${AWS_DEFAULT_REGION}" \
           --arch amd64 \
