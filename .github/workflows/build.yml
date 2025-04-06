@@ -11,7 +11,7 @@ concurrency:
 jobs:
   dependencies:
     runs-on:
-      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
+      - arc-runner-set
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,6 +21,7 @@ jobs:
       - name: Setup Go (version from go.mod)
         uses: actions/setup-go@v5
         with:
+          cache: false
           go-version-file: go.mod
 
       - name: Download dependencies
@@ -30,14 +31,16 @@ jobs:
         id: go-tools-cache
         uses: actions/cache@v4
         with:
-          path: ~/go/bin
-          key: ${{ runner.os }}-go-tools-${{ hashFiles('**/go.sum') }}
+          path: ${HOME}/go/bin
+          key: go-tools-${{ runner.os }}-${{ hashFiles('go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-tools-
+            go-tools-${{ runner.os }}-
 
       - name: Install tools
         if: steps.go-tools-cache.outputs.cache-hit != 'true'
         run: go install tool
+
+      - run: which buf
 
       - name: Generate code
         run: go generate
@@ -59,7 +62,7 @@ jobs:
   analyze:
     needs: [ dependencies ]
     runs-on:
-      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
+      - arc-runner-set
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -92,7 +95,7 @@ jobs:
   lint:
     needs: [ dependencies ]
     runs-on:
-      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
+      - arc-runner-set
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -115,7 +118,7 @@ jobs:
   test:
     needs: [ dependencies ]
     runs-on:
-      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
+      - arc-runner-set
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -139,7 +142,7 @@ jobs:
   build:
     needs: [ dependencies ]
     runs-on:
-      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
+      - arc-runner-set
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
