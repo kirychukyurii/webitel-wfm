@@ -26,21 +26,6 @@ jobs:
       - name: Download dependencies
         run: go mod download
 
-      - name: Cache Go tools
-        id: go-tools-cache
-        uses: actions/cache@v4
-        with:
-          path: ${HOME}/go/bin
-          key: go-tools-${{ runner.os }}-${{ hashFiles('go.sum') }}
-          restore-keys: |
-            go-tools-${{ runner.os }}-
-
-      - name: Install tools
-        if: steps.go-tools-cache.outputs.cache-hit != 'true'
-        run: go install tool
-
-      - run: which buf
-
       - name: Generate code
         run: go generate
 
