@@ -6,14 +6,53 @@ on:
     outputs:
       component:
         description: 'Extracted component'
-        value: ${{ jobs.prepare.outputs.component }}
+        value: ${{ jobs.version.outputs.component }}
 
 jobs:
-  prepare:
-    uses: ./.github/workflows/build.yml
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.parse-version.outputs.WEBITEL_VERSION }}
+      component: ${{ steps.parse-version.outputs.WEBITEL_DEB_COMPONENT }}
+    steps:
+      - name: Parse version
+        id: version
+        uses: ./.github/actions/parse-version
+        with:
+          version-env-name: WEBITEL_VERSION
+          component-env-name: WEBITEL_DEB_COMPONENT
+
+  dependencies:
+    runs-on:
+      - arc-runner-set
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Generate code
+        run: go generate ./..
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-code-go
+          compression-level: 9
+          path: gen/go
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-code-wire
+          compression-level: 9
+          path: cmd/wire_gen.go
 
   analyze:
-    needs: [ prepare ]
+    needs: [ dependencies ]
     runs-on:
       - arc-runner-set
     steps:
@@ -41,7 +80,7 @@ jobs:
         uses: github/codeql-action/analyze@v3
 
   lint:
-    needs: [ prepare ]
+    needs: [ dependencies ]
     runs-on:
       - arc-runner-set
     steps:
@@ -61,7 +100,7 @@ jobs:
           skip-cache: true
 
   test:
-    needs: [ prepare ]
+    needs: [ dependencies ]
     runs-on:
       - arc-runner-set
     steps:
@@ -80,7 +119,7 @@ jobs:
         run: grep --color=never -e '--- PASS:' -e '--- FAIL:' test.log | sed 's/[:()]//g' | awk '{print $2,$3,$4}' | sort -t' ' -nk3 -r | awk '{sum += $3; print $1,$2,$3,sum"s"}'
 
   build:
-    needs: [ prepare ]
+    needs: [ dependencies, version ]
     runs-on:
       - arc-runner-set
     steps:
