@@ -1,22 +1,21 @@
+name: deploy
+
 on:
   push:
     branches:
-      - v*.* # Only release branches
+      - main
 
 jobs:
   build:
     uses: ./.github/workflows/build.yml
 
-  # If it is the latest release - deploy it to stage environment.
-  deploy:
+  # Install .deb pkg from artifact
+  dev:
     needs: [ build ]
     runs-on:
       - arc-runner-set
-    environment: stage
+    environment: dev
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
       - name: Deploy artifact
         uses: ./.github/actions/deploy-build
         with:
@@ -26,20 +25,25 @@ jobs:
           service: ''
           user: ''
 
-      - name: Publish build
-        uses: ./.github/actions/upload-s3
+  # Request approves for build
+  # Install .deb pkg from artifact
+  test:
+    needs: [ build, dev ]
+    runs-on:
+      - arc-runner-set
+    environment: test
+    steps:
+      - name: Deploy artifact
+        uses: ./.github/actions/deploy-build
         with:
+          host: ${{ vars.HOST_IP }}
+          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: webitel-wfm-*.deb
-          aws-bucket-name: webitel-deb-pkg
-          aws-bucket-region: us-east-2
-          aws-secret-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          service: ''
+          user: ''
 
-  # We don't have a prod environment for each release,
-  # so assume changes are tested.
-  # Upload release to the repository.
   repository:
-    needs: [ build, deploy ]
+    needs: [ build, test ]
     runs-on:
       - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
     steps:

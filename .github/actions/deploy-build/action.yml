@@ -1,15 +1,23 @@
 inputs:
   host:
     required: true
-    description: ""
+    description: "Remote host (IP or domain) where the build artifacts will be deployed"
+
+  user:
+    required: true
+    description: "SSH username used to connect to the remote host"
 
   private-key:
     required: true
-    description: ""
+    description: "Private SSH key used for authentication with the remote host"
 
-  source-name:
+  source:
     required: true
-    description: ""
+    description: "Build artifact (e.g., .deb package) to be copied and installed on the remote host"
+
+  service:
+    required: true
+    description: "Systemd service to restart after the package is installed"
 
 runs:
   using: "composite"
@@ -23,17 +31,18 @@ runs:
       uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ inputs.host }}
-        username: admin
+        username: ${{ inputs.user }}
         key: ${{ inputs.private-key }}
-        source: ${{ inputs.source-name }}
+        source: ${{ inputs.source }}
         target: ~/dist
 
     - name: Install
       uses: appleboy/ssh-action@v1
       with:
         host: ${{ inputs.host }}
-        username: admin
+        username: ${{ inputs.user }}
         key: ${{ inputs.private-key }}
         script: |
-          sudo dpkg -i ~/dist/${{ inputs.source-name }}
-          rm ~/dist/${{ inputs.source-name }}
+          sudo dpkg -i ~/dist/${{ inputs.source }}
+          rm ~/dist/${{ inputs.source }}
+          sudo systemctl restart ${{ inputs.service }}

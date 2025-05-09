@@ -1,23 +1,23 @@
 inputs:
   aws-secret-id:
     required: true
-    description: ""
+    description: "AWS access key ID used for authentication to S3"
 
   aws-secret-key:
     required: true
-    description: ""
+    description: "AWS secret access key used for authentication to S3"
 
   aws-bucket-region:
     required: true
-    description: ""
+    description: "AWS region where the S3 bucket is located (e.g., us-east-1)"
 
   aws-bucket-name:
     required: true
-    description: ""
+    description: "Name of the S3 bucket where the package will be uploaded"
 
-  source-name:
+  source:
     required: true
-    description: ""
+    description: "Build artifact (e.g., .deb package) that will be uploaded to the S3 bucket"
 
 runs:
   using: "composite"
@@ -34,7 +34,7 @@ runs:
     - name: Publish packages
       shell: bash
       env:
-        SOURCE_NAME: ${{ inputs.source-name }}
+        SOURCE_NAME: ${{ inputs.source }}
         AWS_ACCESS_KEY_ID: ${{ inputs.aws-secret-id }}
         AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-key }}
         AWS_DEFAULT_REGION: ${{ inputs.aws-bucket-region }}
