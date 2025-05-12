@@ -29,8 +29,6 @@ jobs:
 
   dependencies:
     runs-on: [ arc-runner-set ]
-    container:
-      image: golang:1.24.3-alpine
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
