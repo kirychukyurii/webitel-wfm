@@ -1,3 +1,5 @@
+name: release
+
 on:
   push:
     branches:
@@ -10,8 +12,7 @@ jobs:
   # If it is the latest release - deploy it to stage environment.
   deploy:
     needs: [ build ]
-    runs-on:
-      - arc-runner-set
+    runs-on: [ arc-runner-set ]
     environment: stage
     steps:
       - name: Checkout repository
@@ -40,8 +41,7 @@ jobs:
   # Upload release to the repository.
   repository:
     needs: [ build, deploy ]
-    runs-on:
-      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: [ arc-runner-set ]
     steps:
       - name: Noop
         run: echo "Upload release to repository!"

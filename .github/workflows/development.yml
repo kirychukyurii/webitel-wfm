@@ -12,8 +12,7 @@ jobs:
   # Install .deb pkg from artifact
   dev:
     needs: [ build ]
-    runs-on:
-      - arc-runner-set
+    runs-on: [ arc-runner-set ]
     environment: dev
     steps:
       - name: Deploy artifact
@@ -29,8 +28,7 @@ jobs:
   # Install .deb pkg from artifact
   test:
     needs: [ build, dev ]
-    runs-on:
-      - arc-runner-set
+    runs-on: [ arc-runner-set ]
     environment: test
     steps:
       - name: Deploy artifact
@@ -44,8 +42,7 @@ jobs:
 
   repository:
     needs: [ build, test ]
-    runs-on:
-      - codebuild-wfm-${{ github.run_id }}-${{ github.run_attempt }}
+    runs-on: [ arc-runner-set ]
     steps:
       - name: Noop
         run: echo "Upload release to repository!"
