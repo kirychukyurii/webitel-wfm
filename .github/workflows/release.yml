@@ -24,10 +24,10 @@ jobs:
         uses: ./.github/actions/deploy-build
         with:
           host: ${{ vars.HOST_IP }}
+          user: development
           private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: webitel-wfm-*.deb
-          service: ''
-          user: ''
+          service: webitel-wfm
 
       - name: Publish build
         uses: ./.github/actions/upload-s3

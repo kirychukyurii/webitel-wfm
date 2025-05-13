@@ -11,41 +11,51 @@ jobs:
     uses: ./.github/workflows/build.yml
 
   # Install .deb pkg from artifact
-  dev:
+  development:
     name: Deploy / Development
     needs: [ build ]
     runs-on: [ arc-runner-set ]
-    environment: dev
+    environment: development
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
       - name: Deploy artifact
         uses: ./.github/actions/deploy-build
         with:
           host: ${{ vars.HOST_IP }}
+          user: development
           private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: webitel-wfm-*.deb
-          service: ''
-          user: ''
+          service: webitel-wfm
 
   # Request approves for build
   # Install .deb pkg from artifact
-  test:
+  testing:
     name: Deploy / Testing
-    needs: [ build, dev ]
+    needs: [ build, development ]
     runs-on: [ arc-runner-set ]
-    environment: test
+    environment: testing
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
       - name: Deploy artifact
         uses: ./.github/actions/deploy-build
         with:
           host: ${{ vars.HOST_IP }}
+          user: development
           private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: webitel-wfm-*.deb
-          service: ''
-          user: ''
+          service: webitel-wfm
 
   repository:
     name: Publish .deb package
-    needs: [ build, test ]
+    needs: [ build, testing ]
     runs-on: [ arc-runner-set ]
     steps:
       - name: Noop

@@ -1,0 +1,25 @@
+name: Upload generated code
+description: Upload Go and wire-generated code artifacts
+inputs:
+  wire:
+    description: 'Upload wire generated code'
+    required: false
+    default: 'false'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Upload Go generated code
+      uses: actions/upload-artifact@v4
+      with:
+        name: generated-code-go
+        compression-level: 9
+        path: gen/go
+
+    - name: Upload wire generated code
+      if: ${{ inputs.wire == 'true' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: generated-code-wire
+        compression-level: 9
+        path: cmd/wire_gen.go

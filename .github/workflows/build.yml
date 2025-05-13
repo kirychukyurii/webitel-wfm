@@ -5,7 +5,7 @@ on:
   workflow_call:
     outputs:
       component:
-        description: 'Extracted component'
+        description: Extracted component
         value: ${{ jobs.version.outputs.component }}
 
 jobs:
@@ -44,20 +44,12 @@ jobs:
         run: go generate ./...
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: ./.github/actions/upload-generated
         with:
-          name: generated-code-go
-          compression-level: 9
-          path: gen/go
+          wire: true
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: generated-code-wire
-          compression-level: 9
-          path: cmd/wire_gen.go
 
-#  analyze:
+  #  analyze:
 #    needs: [ dependencies ]
 #    runs-on: [ arc-runner-set ]
 #    steps:
@@ -95,7 +87,9 @@ jobs:
           fetch-depth: 2
 
       - name: Download generated code
-        uses: ./.github/actions/generated
+        uses: ./.github/actions/download-generated
+        with:
+          wire: true
 
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v6.5.2
@@ -115,7 +109,9 @@ jobs:
           fetch-depth: 2
 
       - name: Download generated code
-        uses: ./.github/actions/generated
+        uses: ./.github/actions/download-generated
+        with:
+          wire: true
 
       - name: Run all tests
         run: go test -short -v ./... > test.log; exit ${PIPESTATUS[0]}
@@ -134,7 +130,9 @@ jobs:
           fetch-depth: 0 # required for the changelog to work correctly
 
       - name: Download generated code
-        uses: ./.github/actions/generated
+        uses: ./.github/actions/download-generated
+        with:
+          wire: true
 
       - name: Build
         env:
