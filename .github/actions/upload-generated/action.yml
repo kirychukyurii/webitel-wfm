@@ -2,12 +2,12 @@ name: Upload generated code
 description: Upload Go and wire-generated code artifacts
 inputs:
   wire:
-    description: 'Upload wire generated code'
+    description: Upload wire generated code
     required: false
     default: 'false'
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Upload Go generated code
       uses: actions/upload-artifact@v4

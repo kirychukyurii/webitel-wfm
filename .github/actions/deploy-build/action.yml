@@ -1,26 +1,26 @@
 inputs:
   host:
     required: true
-    description: "Remote host (IP or domain) where the build artifacts will be deployed"
+    description: Remote host (IP or domain) where the build artifacts will be deployed
 
   user:
     required: true
-    description: "SSH username used to connect to the remote host"
+    description: SSH username used to connect to the remote host
 
   private-key:
     required: true
-    description: "Private SSH key used for authentication with the remote host"
+    description: Private SSH key used for authentication with the remote host
 
   source:
     required: true
-    description: "Build artifact (e.g., .deb package) to be copied and installed on the remote host"
+    description: Build artifact (e.g., .deb package) to be copied and installed on the remote host
 
   service:
     required: true
-    description: "Systemd service to restart after the package is installed"
+    description: Systemd service to restart after the package is installed"
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Download build artifacts
       uses: actions/download-artifact@v4

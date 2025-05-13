@@ -1,43 +1,43 @@
-name: 'Parse Version'
-description: 'Extract version information for GitHub Actions workflows'
+name: Parse Version
+description: Extract version information for GitHub Actions workflows
 
 inputs:
   version-env-name:
-    description: 'Name of the environment variable for version'
+    description: Name of the environment variable for version
     required: false
-    default: 'VERSION'
+    default: VERSION
 
   component-env-name:
-    description: 'Name of the environment variable for component'
+    description: Name of the environment variable for component
     required: false
-    default: 'COMPONENT'
+    default: COMPONENT
 
   development-branch:
-    description: 'Name of the development branch'
+    description: Name of the development branch
     required: false
-    default: 'main'
+    default: main
 
   triggered-branch:
-    description: 'Name of the triggered branch'
+    description: Name of the triggered branch
     required: false
     default: ${{ github.ref_name }}
 
   build-number:
-    description: 'Build number'
+    description: Build number
     required: false
     default: ${{ github.run_number }}
 
 outputs:
   version:
-    description: 'Extracted version'
+    description: Extracted version
     value: ${{ steps.parse-version.outputs.VERSION }}
 
   component:
-    description: 'Extracted component'
+    description: Extracted component
     value: ${{ steps.parse-version.outputs.COMPONENT }}
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - name: Parse Version
       id: parse-version
