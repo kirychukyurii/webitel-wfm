@@ -52,8 +52,10 @@ runs:
         trust_level: 5
 
     - name: List keys
-      run: gpg -K
       shell: bash
+      run: |
+        gpg -K
+        gpg-connect-agent 'keyinfo --list' /bye
 
     - name: Publish packages
       shell: bash
@@ -70,7 +72,7 @@ runs:
         export GPG_TTY=$(tty)
         deb-s3 upload ${SOURCE_NAME} --visibility nil \
           --sign ${{ steps.import-gpg-key.outputs.fingerprint }} \
-          --gpg-options "--pinentry-mode loopback --batch --use-agent" \
+          --gpg-options "--pinentry-mode loopback" \
           --bucket "${AWS_BUCKET_NAME}" \
           --s3-region "${AWS_DEFAULT_REGION}" \
           --arch amd64 \
