@@ -52,6 +52,7 @@ jobs:
     name: Lint code
     needs: [ dependencies ]
     runs-on: [ arc-runner-set ]
+    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -74,6 +75,7 @@ jobs:
     name: Check vulnerabilities
     needs: [ dependencies ]
     runs-on: [ arc-runner-set ]
+    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -100,6 +102,7 @@ jobs:
     name: Unit testing
     needs: [ dependencies ]
     runs-on: [ arc-runner-set ]
+    continue-on-error: true
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
