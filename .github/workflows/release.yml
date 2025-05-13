@@ -11,6 +11,7 @@ jobs:
 
   # If it is the latest release - deploy it to stage environment.
   deploy:
+    name: Staging
     needs: [ build ]
     runs-on: [ arc-runner-set ]
     environment: stage
@@ -40,6 +41,7 @@ jobs:
   # so assume changes are tested.
   # Upload release to the repository.
   repository:
+    name: Publish .deb package
     needs: [ build, deploy ]
     runs-on: [ arc-runner-set ]
     steps:

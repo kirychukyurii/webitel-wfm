@@ -10,6 +10,7 @@ on:
 
 jobs:
   version:
+    name: Parse version
     runs-on: [ arc-runner-set ]
     outputs:
       version: ${{ steps.parse-version.outputs.WEBITEL_VERSION }}
@@ -28,6 +29,7 @@ jobs:
           component-env-name: WEBITEL_DEB_COMPONENT
 
   dependencies:
+    name: Generate code
     runs-on: [ arc-runner-set ]
     steps:
       - name: Checkout repository
@@ -83,6 +85,7 @@ jobs:
 #        uses: github/codeql-action/analyze@v3
 
   lint:
+    name: Lint code
     needs: [ dependencies ]
     runs-on: [ arc-runner-set ]
     steps:
@@ -102,6 +105,7 @@ jobs:
           skip-cache: true
 
   test:
+    name: Unit testing
     needs: [ dependencies ]
     runs-on: [ arc-runner-set ]
     steps:
@@ -120,6 +124,7 @@ jobs:
         run: grep --color=never -e '--- PASS:' -e '--- FAIL:' test.log | sed 's/[:()]//g' | awk '{print $2,$3,$4}' | sort -t' ' -nk3 -r | awk '{sum += $3; print $1,$2,$3,sum"s"}'
 
   compile:
+    name: Compile application
     needs: [ dependencies, version ]
     runs-on: [ arc-runner-set ]
     steps:

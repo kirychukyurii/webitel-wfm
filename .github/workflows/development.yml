@@ -11,6 +11,7 @@ jobs:
 
   # Install .deb pkg from artifact
   dev:
+    name: Development
     needs: [ build ]
     runs-on: [ arc-runner-set ]
     environment: dev
@@ -27,6 +28,7 @@ jobs:
   # Request approves for build
   # Install .deb pkg from artifact
   test:
+    name: Testing
     needs: [ build, dev ]
     runs-on: [ arc-runner-set ]
     environment: test
@@ -41,6 +43,7 @@ jobs:
           user: ''
 
   repository:
+    name: Publish .deb package
     needs: [ build, test ]
     runs-on: [ arc-runner-set ]
     steps:
