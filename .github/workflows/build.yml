@@ -80,6 +80,11 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: Download generated code
+        uses: ./.github/actions/download-generated
+        with:
+          wire: true
+
       - name: Install govulncheck
         run: go install golang.org/x/vuln/cmd/govulncheck@latest
 
