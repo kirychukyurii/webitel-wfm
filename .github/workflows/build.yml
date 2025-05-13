@@ -114,10 +114,13 @@ jobs:
           wire: true
 
       - name: Run all tests
-        run: go test -short -v ./... > test.log; exit ${PIPESTATUS[0]}
+        run: go test -short -v ./... | go run github.com/jstemmer/go-junit-report@latest -set-exit-code > report.xml
 
-      - name: Pretty print tests running time
-        run: grep --color=never -e '--- PASS:' -e '--- FAIL:' test.log | sed 's/[:()]//g' | awk '{print $2,$3,$4}' | sort -t' ' -nk3 -r | awk '{sum += $3; print $1,$2,$3,sum"s"}'
+      - name: Test Summary
+        if: always()
+        uses: test-summary/action@v2.4
+        with:
+          paths: report.xml
 
   compile:
     name: Compile application
