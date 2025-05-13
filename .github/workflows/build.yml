@@ -25,6 +25,9 @@ jobs:
         id: version
         uses: ./.github/actions/parse-version
 
+      - name: debug
+        run: echo "${{ steps.version.outputs.component }} - ${{ steps.version.outputs.version }}"
+
   dependencies:
     name: Generate code
     runs-on: [ arc-runner-set ]
