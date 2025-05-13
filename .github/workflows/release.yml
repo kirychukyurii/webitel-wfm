@@ -7,6 +7,7 @@ on:
 
 jobs:
   build:
+    name: Build
     uses: ./.github/workflows/build.yml
 
   # If it is the latest release - deploy it to stage environment.
