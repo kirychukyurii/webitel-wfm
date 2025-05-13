@@ -59,6 +59,11 @@ jobs:
     runs-on: [ arc-runner-set ]
     environment: acceptance
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
       - name: Publish build
         uses: ./.github/actions/upload-s3
         with:
