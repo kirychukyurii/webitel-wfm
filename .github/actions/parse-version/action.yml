@@ -20,11 +20,11 @@ inputs:
 outputs:
   version:
     description: Extracted version
-    value: ${{ steps.parse-version.outputs.VERSION }}
+    value: ${{ steps.parse-version.outputs.version }}
 
   component:
     description: Extracted component
-    value: ${{ steps.parse-version.outputs.COMPONENT }}
+    value: ${{ steps.parse-version.outputs.component }}
 
 runs:
   using: composite
