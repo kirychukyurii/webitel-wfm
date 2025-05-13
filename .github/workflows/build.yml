@@ -13,8 +13,8 @@ jobs:
     name: Parse version
     runs-on: [ arc-runner-set ]
     outputs:
-      version: ${{ steps.parse-version.outputs.version }}
-      component: ${{ steps.parse-version.outputs.component }}
+      version: ${{ steps.version.outputs.version }}
+      component: ${{ steps.version.outputs.component }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
