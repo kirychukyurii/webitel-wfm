@@ -6,14 +6,42 @@ on:
       - main
 
 jobs:
-  build:
-    name: Build
-    uses: ./.github/workflows/build.yml
+  checks:
+    name: Checks
+    uses: ./.github/workflows/ci-checks.yml
+
+  compile:
+    name: Compile application
+    needs: [ checks ]
+    runs-on: [ arc-runner-set ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # required for the changelog to work correctly
+
+      - name: Download generated code
+        uses: ./.github/actions/download-generated
+        with:
+          wire: true
+
+      - name: Build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GORELEASER_CURRENT_TAG: ${{ needs.version.outputs.version }}
+        run: goreleaser release --clean --skip publish --skip validate
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-packages
+          compression-level: 9
+          path: dist/webitel-wfm-*.*
 
   # Install .deb pkg from artifact
   development:
     name: Development
-    needs: [ build ]
+    needs: [ compile ]
     runs-on: [ arc-runner-set ]
     environment: development
     steps:
@@ -35,7 +63,7 @@ jobs:
   # Install .deb pkg from artifact
   testing:
     name: Testing
-    needs: [ build, development ]
+    needs: [ compile, development ]
     runs-on: [ arc-runner-set ]
     environment: testing
     steps:
@@ -55,7 +83,7 @@ jobs:
 
   repository:
     name: Publish .deb package
-    needs: [ build, testing ]
+    needs: [ compile, testing ]
     runs-on: [ arc-runner-set ]
     environment: acceptance
     steps:
