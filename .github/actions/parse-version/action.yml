@@ -2,16 +2,6 @@ name: Parse Version
 description: Extract version information for GitHub Actions workflows
 
 inputs:
-  version-env-name:
-    description: Name of the environment variable for version
-    required: false
-    default: VERSION
-
-  component-env-name:
-    description: Name of the environment variable for component
-    required: false
-    default: COMPONENT
-
   development-branch:
     description: Name of the development branch
     required: false
@@ -43,8 +33,6 @@ runs:
       id: parse-version
       shell: bash
       env:
-        VERSION_ENV_NAME: ${{ inputs.version-env-name }}
-        COMPONENT_ENV_NAME: ${{ inputs.component-env-name }}
         DEVELOPMENT_BRANCH: ${{ inputs.development-branch }}
         TRIGGERED_BRANCH: ${{ inputs.triggered-branch }}
         BUILD_NUMBER: ${{ inputs.build-number }}
@@ -59,7 +47,6 @@ runs:
           local year=$(date +"%y")  # Get last two digits of the year
           local month=$(date +"%m") # Get month as number
           local month_without_leading_zero=$(echo "$month" | sed 's/^0//')  # Remove leading zero
-        
           local version="v${year}.${month_without_leading_zero}-${component}.${build_number}"
         
           echo "$version" "$component"
@@ -80,23 +67,19 @@ runs:
         
           # Remove leading zero from month part
           local month_without_leading_zero=$(echo "$month" | sed 's/^0//')
-        
           local version="v${year}.${month_without_leading_zero}-${build_number}"
         
           echo "$version" "$component"
         }
         
         # Main execution logic
-        if [[ "$TRIGGERED_BRANCH" == "$DEVELOPMENT_BRANCH" ]]; then
-          read version component < <(extract_development "$BUILD_NUMBER")
-        else
+        read version component < <(extract_development "$BUILD_NUMBER")
+        if [[ "$TRIGGERED_BRANCH" != "$DEVELOPMENT_BRANCH" ]]; then
           read version component < <(extract_release "$TRIGGERED_BRANCH" "$BUILD_NUMBER")
         fi
         
         echo "Extracted version: $version, component: $component"
         
         # Set outputs for GitHub Actions
-        echo "${VERSION_ENV_NAME}=${version}" >> $GITHUB_ENV
-        echo "${COMPONENT_ENV_NAME}=${component}" >> $GITHUB_ENV
-        echo "${VERSION_ENV_NAME}=${version}" >> $GITHUB_OUTPUT
-        echo "${COMPONENT_ENV_NAME}=${component}" >> $GITHUB_OUTPUT
+        echo "version=${version}" >> $GITHUB_OUTPUT
+        echo "component=${component}" >> $GITHUB_OUTPUT

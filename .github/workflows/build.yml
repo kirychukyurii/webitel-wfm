@@ -13,8 +13,8 @@ jobs:
     name: Parse version
     runs-on: [ arc-runner-set ]
     outputs:
-      version: ${{ steps.parse-version.outputs.WEBITEL_VERSION }}
-      component: ${{ steps.parse-version.outputs.WEBITEL_DEB_COMPONENT }}
+      version: ${{ steps.parse-version.outputs.version }}
+      component: ${{ steps.parse-version.outputs.component }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,9 +24,6 @@ jobs:
       - name: Parse version
         id: version
         uses: ./.github/actions/parse-version
-        with:
-          version-env-name: WEBITEL_VERSION
-          component-env-name: WEBITEL_DEB_COMPONENT
 
   dependencies:
     name: Generate code
