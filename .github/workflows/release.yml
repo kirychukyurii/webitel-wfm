@@ -63,7 +63,7 @@ jobs:
   # Upload release to the repository.
   repository:
     name: Publish .deb package
-    needs: [ build, deploy ]
+    needs: [ build ]
     runs-on: [ arc-runner-set ]
     environment: release
     steps:
