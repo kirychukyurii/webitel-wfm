@@ -10,10 +10,36 @@ jobs:
     name: Build
     uses: ./.github/workflows/build.yml
 
+  check-latest:
+    name: Check latest release
+    runs-on: [ arc-runner-set ]
+    outputs:
+      latest: ${{ steps.check.outputs.latest }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history so we can list branches
+
+      - id: check
+        name: For each git ref
+        run: |
+          current_branch="${GITHUB_REF#refs/heads/}"
+          echo "Current branch: $current_branch"
+
+          # Get all release branches sorted descending
+          latest_branch=$(git for-each-ref --sort=-creatordate --format '%(refname:short)' 'refs/heads/v*.*' | head -n1)
+          echo "Latest release branch: $latest_branch"
+
+          if [[ "$current_branch" == "$latest_branch" ]]; then
+            echo "latest=true" >> "$GITHUB_OUTPUT"
+          fi
+
   # If it is the latest release - deploy it to stage environment.
   deploy:
     name: Staging
-    needs: [ build ]
+    if: needs.check-latest.outputs.latest == 'true'
+    needs: [ build, check-latest ]
     runs-on: [ arc-runner-set ]
     environment: stage
     steps:
