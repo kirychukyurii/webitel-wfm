@@ -71,7 +71,6 @@ runs:
         COMPONENT: ${{ inputs.component }}
         CODENAME: ${{ inputs.codename }}
       run: |
-        export GPG_TTY=$(tty)
         deb-s3 upload ${SOURCE_NAME} --visibility nil \
           --sign ${{ steps.import-gpg-key.outputs.fingerprint }} \
           --gpg-options "--pinentry-mode loopback" \
