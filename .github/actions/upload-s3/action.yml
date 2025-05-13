@@ -55,6 +55,11 @@ runs:
       run: gpg -K
       shell: bash
 
+    - name: Set up GPG for non-interactive mode
+      shell: bash
+      run: |
+        export GPG_TTY=$(tty)  # Ensure GPG can interact with the terminal
+
     - name: Publish packages
       shell: bash
       env:
@@ -67,9 +72,9 @@ runs:
         CODENAME: ${{ inputs.codename }}
       run: |
         export GPG_TTY=$(tty)
-        deb-s3 upload ${SOURCE_NAME} \
+        deb-s3 upload ${SOURCE_NAME} --visibility nil \
           --sign ${{ steps.import-gpg-key.outputs.fingerprint }} \
-          --visibility nil \
+          --gpg-options "--pinentry-mode loopback" \
           --bucket "${AWS_BUCKET_NAME}" \
           --s3-region "${AWS_DEFAULT_REGION}" \
           --arch amd64 \
