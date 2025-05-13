@@ -48,34 +48,6 @@ jobs:
         with:
           wire: true
 
-
-  #  analyze:
-#    needs: [ dependencies ]
-#    runs-on: [ arc-runner-set ]
-#    steps:
-#      - name: Checkout repository
-#        uses: actions/checkout@v4
-#        with:
-#          # We must fetch at least the immediate parents so that if this is
-#          # a pull request, then we can checkout the head.
-#          fetch-depth: 2
-#
-#      - name: Download generated code
-#        uses: ./.github/actions/generated
-#
-#      # Initializes the CodeQL tools for scanning.
-#      - name: Initialize CodeQL
-#        uses: github/codeql-action/init@v3
-#        with:
-#          languages: "go"
-#          # If you wish to specify custom queries, you can do so here or in a config file.
-#          # By default, queries listed here will override any specified in a config file.
-#          # Prefix the list here with "+" to use these queries and those in the config file.
-#          # queries: ./path/to/local/query, your-org/your-repo/queries@main
-#
-#      - name: Perform CodeQL Analysis
-#        uses: github/codeql-action/analyze@v3
-
   lint:
     name: Lint code
     needs: [ dependencies ]
@@ -97,6 +69,27 @@ jobs:
           install-mode: none
           problem-matchers: true
           skip-cache: true
+
+  govulncheck:
+    name: Check vulnerabilities
+    needs: [ dependencies ]
+    runs-on: [ arc-runner-set ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Install govulncheck
+        run: go install golang.org/x/vuln/cmd/govulncheck@latest
+
+      - name: Run govulncheck and save to file
+        run: govulncheck -C . -format sarif ./... > report.sarif
+
+      - name: Upload to code-scanning
+        uses: github/codeql-action/upload-sarif@28deaeda66b76a05916b6923827895f2b14ab387 # v3.28.16
+        with:
+          sarif_file: report.sarif
 
   test:
     name: Unit testing

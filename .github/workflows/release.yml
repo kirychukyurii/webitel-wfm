@@ -41,7 +41,7 @@ jobs:
     if: needs.check-latest.outputs.latest == 'true'
     needs: [ build, check-latest ]
     runs-on: [ arc-runner-set ]
-    environment: stage
+    environment: staging
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -71,6 +71,7 @@ jobs:
     name: Publish .deb package
     needs: [ build, deploy ]
     runs-on: [ arc-runner-set ]
+    environment: release
     steps:
       - name: Noop
         run: echo "Upload release to repository!"

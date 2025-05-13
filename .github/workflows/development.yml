@@ -57,6 +57,7 @@ jobs:
     name: Publish .deb package
     needs: [ build, testing ]
     runs-on: [ arc-runner-set ]
+    environment: acceptance
     steps:
       - name: Noop
         run: echo "Upload release to repository!"
