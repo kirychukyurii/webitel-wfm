@@ -25,8 +25,8 @@ jobs:
       - name: Deploy artifact
         uses: ./.github/actions/deploy-build
         with:
-          host: ${{ vars.HOST_IP }}
-          user: development
+          host: ${{ secrets.DEVELOPMENT_HOST }}
+          user: ${{ secrets.SSH_USER }}
           private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: webitel-wfm-*.deb
           service: webitel-wfm
@@ -47,8 +47,8 @@ jobs:
       - name: Deploy artifact
         uses: ./.github/actions/deploy-build
         with:
-          host: ${{ vars.HOST_IP }}
-          user: development
+          host: ${{ secrets.TESTING_HOST }}
+          user: ${{ secrets.SSH_USER }}
           private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: webitel-wfm-*.deb
           service: webitel-wfm
