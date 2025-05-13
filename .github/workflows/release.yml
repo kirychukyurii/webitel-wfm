@@ -55,15 +55,6 @@ jobs:
           source: webitel-wfm-*.deb
           service: webitel-wfm
 
-      - name: Publish build
-        uses: ./.github/actions/upload-s3
-        with:
-          source: webitel-wfm-*.deb
-          aws-bucket-name: webitel-deb-pkg
-          aws-bucket-region: us-east-2
-          aws-secret-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
   # We don't have a prod environment for each release,
   # so assume changes are tested.
   # Upload release to the repository.
@@ -73,5 +64,11 @@ jobs:
     runs-on: [ arc-runner-set ]
     environment: release
     steps:
-      - name: Noop
-        run: echo "Upload release to repository!"
+      - name: Publish build
+        uses: ./.github/actions/upload-s3
+        with:
+          source: webitel-wfm-*.deb
+          aws-bucket-name: webitel-deb-pkg
+          aws-bucket-region: us-east-2
+          aws-secret-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
