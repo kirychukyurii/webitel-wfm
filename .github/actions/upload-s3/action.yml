@@ -62,6 +62,7 @@ runs:
         COMPONENT: ${{ inputs.component }}
         CODENAME: ${{ inputs.codename }}
       run: |
+        export GPG_TTY=$(tty)
         deb-s3 upload ${SOURCE_NAME} \
           --sign ${{ steps.import-gpg-key.outputs.fingerprint }} \
           --visibility nil \
