@@ -1,4 +1,4 @@
-name: deploy
+name: Deploy
 
 on:
   push:
@@ -11,7 +11,7 @@ jobs:
 
   # Install .deb pkg from artifact
   dev:
-    name: Development
+    name: Deploy / Development
     needs: [ build ]
     runs-on: [ arc-runner-set ]
     environment: dev
@@ -28,7 +28,7 @@ jobs:
   # Request approves for build
   # Install .deb pkg from artifact
   test:
-    name: Testing
+    name: Deploy / Testing
     needs: [ build, dev ]
     runs-on: [ arc-runner-set ]
     environment: test
