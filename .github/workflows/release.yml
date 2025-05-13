@@ -27,10 +27,13 @@ jobs:
           current_branch="${GITHUB_REF#refs/heads/}"
           echo "Current branch: $current_branch"
 
-          # Get all release branches sorted descending
-          latest_branch=$(git for-each-ref --sort=-creatordate --format '%(refname:short)' 'refs/heads/v*.*' | head -n1)
+          latest_branch=$(git ls-remote --heads origin 'v*.*' \
+            | awk '{print $2}' \
+            | sed 's|refs/heads/||' \
+            | sort -rV \
+            | head -n1)
+          
           echo "Latest release branch: $latest_branch"
-
           if [[ "$current_branch" == "$latest_branch" ]]; then
             echo "latest=true" >> "$GITHUB_OUTPUT"
           fi
