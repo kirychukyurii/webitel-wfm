@@ -51,12 +51,6 @@ runs:
         passphrase: ${{ inputs.gpg-passphrase }}
         trust_level: 5
 
-    - name: List keys
-      shell: bash
-      run: |
-        gpg -K
-        gpg-connect-agent 'keyinfo --list' /bye
-
     - name: Publish packages
       shell: bash
       env:
@@ -68,13 +62,11 @@ runs:
         COMPONENT: ${{ inputs.component }}
         CODENAME: ${{ inputs.codename }}
       run: |
-        echo "${{ steps.import-gpg-key.outputs.fingerprint }}"
         export GPG_TTY=$(tty)
-        deb-s3 upload ${SOURCE_NAME} --visibility nil \
+        deb-s3 upload ${SOURCE_NAME} --visibility nil --arch amd64 \
           --sign ${{ steps.import-gpg-key.outputs.fingerprint }} \
           --gpg-options "--pinentry-mode loopback" \
           --bucket "${AWS_BUCKET_NAME}" \
           --s3-region "${AWS_DEFAULT_REGION}" \
-          --arch amd64 \
           --component ${COMPONENT} \
           --codename ${CODENAME} 
