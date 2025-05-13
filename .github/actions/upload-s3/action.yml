@@ -51,6 +51,10 @@ runs:
         passphrase: ${{ inputs.gpg-passphrase }}
         trust_level: 5
 
+    - name: List keys
+      run: gpg -K
+      shell: bash
+
     - name: Publish packages
       shell: bash
       env:
