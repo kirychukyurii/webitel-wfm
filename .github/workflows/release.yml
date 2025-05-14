@@ -6,28 +6,22 @@ on:
       - v*.* # Only release branches
 
 jobs:
-  version:
-    name: Parse version
-    runs-on: [ arc-runner-set ]
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-      component: ${{ steps.version.outputs.component }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Parse version
-        id: version
-        uses: ./.github/actions/parse-version
-
-  build:
-    name: Build
-    uses: ./.github/workflows/build.yml
+  prepare:
+    name: Prepare
+    uses: ./.github/workflows/0-prepare.yml
     with:
-      path: dist/webitel-wfm-*.*
-      version: ${{ needs.version.outputs.version }}
+      wire: true
+      package-pattern: webitel-wfm-*.deb
+      systemd-service: webitel-wfm
+
+  compile:
+    name: Build
+    needs: [ prepare ]
+    uses: ./.github/workflows/2-build.yml
+    with:
+      wire: true
+      source: ${{ needs.prepare.outputs.package-pattern }}
+      version: ${{ needs.prepare.outputs.version }}
 
   check-latest:
     name: Check latest release
@@ -57,34 +51,28 @@ jobs:
             echo "latest=true" >> "$GITHUB_OUTPUT"
           fi
 
-  # If it is the latest release - deploy it to stage environment.
-  deploy:
-    name: Staging
+  staging:
+    name: Testing
     if: needs.check-latest.outputs.latest == 'true'
-    needs: [ build, check-latest ]
-    runs-on: [ arc-runner-set ]
-    environment: staging
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    needs: [ prepare, compile, check-latest ]
+    uses: ./.github/workflows/3-deploy.yml
+    secrets:
+      host: ${{ secrets.STAGING_HOST }}
+      user: ${{ secrets.SSH_USER }}
+      private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy artifact
-        uses: ./.github/actions/deploy-build
-        with:
-          host: ${{ secrets.STAGING_HOST }}
-          user: ${{ secrets.SSH_USER }}
-          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: webitel-wfm-*.deb
-          service: webitel-wfm
+    with:
+      environment: staging
+      service: ${{ needs.prepare.outputs.systemd-service }}
+      source: ${{ needs.prepare.outputs.package-pattern }}
 
-  # We don't have a prod environment for each release,
-  # so assume changes are tested.
-  # Upload release to the repository.
   repository:
     name: Publish .deb package
-    needs: [ build ]
+    needs: [ compile ]
     runs-on: [ arc-runner-set ]
-    environment: release
+    environment:
+      name: ${{ needs.build.outputs.component }}
+
     steps:
       - name: Publish build
         uses: ./.github/actions/upload-s3
