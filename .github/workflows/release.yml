@@ -13,6 +13,7 @@ jobs:
       wire: true
       package-pattern: webitel-wfm-*.deb
       systemd-service: webitel-wfm
+      check-latest: true
 
   compile:
     name: Build
@@ -51,6 +52,7 @@ jobs:
 
   staging:
     name: Staging
+    if: needs.prepare.outputs.latest == true
     needs: [ prepare, compile ]
     uses: webitel/reusable-workflows/.github/workflows/deploy.yml@main
     secrets:
