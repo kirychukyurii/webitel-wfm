@@ -13,6 +13,12 @@ on:
         required: true
         type: string
 
+      wire:
+        description: Download wire generated code
+        required: false
+        default: false
+        type: boolean
+
 jobs:
   compile:
     name: Compile application
@@ -26,7 +32,7 @@ jobs:
       - name: Download generated code
         uses: ./.github/actions/download-generated
         with:
-          wire: true
+          wire: ${{ inputs.wire }}
 
       - name: Build
         env:

@@ -52,28 +52,19 @@ jobs:
       - name: Copy build
         uses: appleboy/scp-action@v1.0.0
         with:
-          host: ${{ inputs.host }}
-          username: ${{ inputs.user }}
-          key: ${{ inputs.private-key }}
+          host: ${{ secrets.host }}
+          username: ${{ secrets.user }}
+          key: ${{ secrets.private-key }}
           source: ${{ inputs.source }}
           target: ~/dist
 
       - name: Install package
         uses: appleboy/ssh-action@v1.2.2
         with:
-          host: ${{ inputs.host }}
-          username: ${{ inputs.user }}
-          key: ${{ inputs.private-key }}
+          host: ${{ secrets.host }}
+          username: ${{ secrets.user }}
+          key: ${{ secrets.private-key }}
           script: |
             sudo dpkg -i ~/dist/${{ inputs.source }}
             rm ~/dist/${{ inputs.source }}
             sudo systemctl restart ${{ inputs.service }}
-
-      - name: Deploy artifact
-        uses: ./.github/actions/deploy-build
-        with:
-          host: ${{ secrets.DEVELOPMENT_HOST }}
-          user: ${{ secrets.SSH_USER }}
-          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: webitel-wfm-*.deb
-          service: webitel-wfm

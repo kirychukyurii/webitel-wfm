@@ -18,12 +18,15 @@ jobs:
     name: Checks
     needs: [ prepare ]
     uses: ./.github/workflows/1-checks.yml
+    with:
+      wire: true
 
   compile:
     name: Build
     needs: [ prepare ]
     uses: ./.github/workflows/2-build.yml
     with:
+      wire: true
       source: ${{ needs.prepare.outputs.package-pattern }}
       version: ${{ needs.prepare.outputs.version }}
 
