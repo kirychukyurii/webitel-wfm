@@ -6,7 +6,7 @@ on:
 jobs:
   prepare:
     name: Prepare
-    uses: ./.github/workflows/0-prepare.yml
+    uses: webitel/reusable-workflows/.github/workflows/go-prepare.yml
     with:
       wire: true
       only-dependencies: true
@@ -14,6 +14,6 @@ jobs:
   checks:
     name: Checks
     needs: [ prepare ]
-    uses: ./.github/workflows/1-checks.yml
+    uses: webitel/reusable-workflows/.github/workflows/go-checks.yml
     with:
       wire: true
