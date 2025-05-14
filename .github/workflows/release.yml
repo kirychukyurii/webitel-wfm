@@ -37,7 +37,7 @@ jobs:
           fetch-depth: 2
 
       - name: Publish build
-        uses: webitel/reusable-workflows/actions/upload-s3@main
+        uses: webitel/reusable-workflows/actions/deb-s3-upload@main
         with:
           source: webitel-wfm-*.deb
           aws-bucket-name: ${{ vars.DEB_AWS_BUCKET_NAME }}
