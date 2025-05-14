@@ -1,0 +1,100 @@
+name: Version
+
+on:
+  workflow_call:
+    inputs:
+      development-branch:
+        description: Name of the development branch
+        required: false
+        default: main
+        type: string
+
+      triggered-branch:
+        description: Name of the triggered branch
+        required: false
+        default: ${{ github.ref_name }}
+        type: string
+
+      build-number:
+        description: Build number
+        required: false
+        default: ${{ github.run_number }}
+        type: string
+
+    outputs:
+      component:
+        value: ${{ jobs.parse-version.outputs.component }}
+        description: Extracted component
+
+      version:
+        value: ${{ jobs.parse-version.outputs.version }}
+        description: Extracted version
+
+jobs:
+  parse:
+    name: Parse
+    runs-on: [ arc-runner-set ]
+    outputs:
+      version: ${{ steps.parse-version.outputs.version }}
+      component: ${{ steps.parse-version.outputs.component }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Parse version
+        id: parse-version
+        env:
+          DEVELOPMENT_BRANCH: ${{ inputs.development-branch }}
+          TRIGGERED_BRANCH: ${{ inputs.triggered-branch }}
+          BUILD_NUMBER: ${{ inputs.build-number }}
+
+        run: |
+          #!/bin/bash
+          set -e
+
+          # Function to extract development version
+          extract_development() {
+            local build_number="$1"
+            local component="dev"
+            local year=$(date +"%y")  # Get last two digits of the year
+            local month=$(date +"%m") # Get month as number
+            local month_without_leading_zero=$(echo "$month" | sed 's/^0//')  # Remove leading zero
+            local version="v${year}.${month_without_leading_zero}-${component}.${build_number}"
+
+            echo "$version" "$component"
+          }
+
+          # Function to extract release version
+          extract_release() {
+            local branch="$1"
+            local build_number="$2"
+            local component="${branch}-releases"
+
+            # Remove 'v' prefix from branch name
+            local branch_version="${branch#v}"
+
+            # Split version by dot
+            local year=$(echo "$branch_version" | cut -d '.' -f 1)
+            local month=$(echo "$branch_version" | cut -d '.' -f 2)
+
+            # Remove leading zero from month part
+            local month_without_leading_zero=$(echo "$month" | sed 's/^0//')
+            local version="v${year}.${month_without_leading_zero}-${build_number}"
+
+            echo "$version" "$component"
+          }
+
+          # Main execution logic
+          read version component < <(extract_development "$BUILD_NUMBER")
+          if [[ "$TRIGGERED_BRANCH" != "$DEVELOPMENT_BRANCH" ]]; then
+            read version component < <(extract_release "$TRIGGERED_BRANCH" "$BUILD_NUMBER")
+          fi
+
+          echo "Extracted version: $version, component: $component"
+
+          # Set outputs for GitHub Actions
+          echo "version=${version}" >> $GITHUB_OUTPUT
+          echo "component=${component}" >> $GITHUB_OUTPUT

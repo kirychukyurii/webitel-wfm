@@ -6,9 +6,28 @@ on:
       - v*.* # Only release branches
 
 jobs:
+  version:
+    name: Parse version
+    runs-on: [ arc-runner-set ]
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      component: ${{ steps.version.outputs.component }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Parse version
+        id: version
+        uses: ./.github/actions/parse-version
+
   build:
     name: Build
     uses: ./.github/workflows/build.yml
+    with:
+      path: dist/webitel-wfm-*.*
+      version: ${{ needs.version.outputs.version }}
 
   check-latest:
     name: Check latest release

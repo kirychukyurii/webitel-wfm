@@ -5,32 +5,9 @@ on:
     branches: [ main ]
 
   workflow_call:
-    outputs:
-      component:
-        value: ${{ jobs.version.outputs.component }}
-        description: Extracted component
 
-      version:
-        value: ${{ jobs.version.outputs.version }}
-        description: Extracted version
 
 jobs:
-  version:
-    name: Parse version
-    runs-on: [ arc-runner-set ]
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-      component: ${{ steps.version.outputs.component }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Parse version
-        id: version
-        uses: ./.github/actions/parse-version
-
   dependencies:
     name: Generate code
     runs-on: [ arc-runner-set ]
