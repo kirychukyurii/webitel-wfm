@@ -52,7 +52,7 @@ jobs:
 
   staging:
     name: Staging
-    if: needs.prepare.outputs.latest == true
+    if: needs.prepare.outputs.latest == 'true'
     needs: [ prepare, compile ]
     uses: webitel/reusable-workflows/.github/workflows/deploy.yml@main
     secrets:
