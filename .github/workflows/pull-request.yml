@@ -8,26 +8,6 @@ on:
 
 
 jobs:
-  dependencies:
-    name: Generate code
-    runs-on: [ arc-runner-set ]
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download dependencies
-        run: go mod download
-
-      - name: Generate code
-        run: go generate ./...
-
-      - name: Upload artifacts
-        uses: ./.github/actions/upload-generated
-        with:
-          wire: true
-
   lint:
     name: Lint code
     needs: [ dependencies ]

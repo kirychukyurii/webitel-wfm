@@ -1,4 +1,4 @@
-name: Version
+name: Prepare
 
 on:
   workflow_call:
@@ -21,6 +21,12 @@ on:
         default: ${{ github.run_number }}
         type: string
 
+      wire:
+        description: Upload wire generated code
+        required: false
+        default: false
+        type: boolean
+
     outputs:
       component:
         value: ${{ jobs.parse-version.outputs.component }}
@@ -32,7 +38,7 @@ on:
 
 jobs:
   parse:
-    name: Parse
+    name: Version
     runs-on: [ arc-runner-set ]
     outputs:
       version: ${{ steps.parse-version.outputs.version }}
@@ -98,3 +104,33 @@ jobs:
           # Set outputs for GitHub Actions
           echo "version=${version}" >> $GITHUB_OUTPUT
           echo "component=${component}" >> $GITHUB_OUTPUT
+
+  dependencies:
+    name: Dependencies
+    runs-on: [ arc-runner-set ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Generate code
+        run: go generate ./...
+
+      - name: Upload Go generated code
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-code-go
+          compression-level: 9
+          path: gen/go
+
+      - name: Upload wire generated code
+        if: ${{ inputs.wire == true }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-code-wire
+          compression-level: 9
+          path: cmd/wire_gen.go

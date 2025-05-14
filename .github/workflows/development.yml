@@ -6,17 +6,20 @@ on:
       - main
 
 jobs:
-  version:
-    name: Parse version
-    uses: ./.github/workflows/parse-version.yml
+  prepare:
+    name: Prepare
+    uses: ./.github/workflows/prepare.yml
+    with:
+      wire: true
 
   checks:
     name: Checks
+    needs: [ prepare ]
     uses: ./.github/workflows/pull-request.yml
 
   compile:
     name: Build
-    needs: [ version ]
+    needs: [ prepare ]
     uses: ./.github/workflows/build.yml
     with:
       path: dist/webitel-wfm-*.*
