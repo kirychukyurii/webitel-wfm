@@ -23,6 +23,27 @@ jobs:
       source: ${{ needs.prepare.outputs.package-pattern }}
       version: ${{ needs.prepare.outputs.version }}
 
+  repository:
+    name: Publish .deb package
+    needs: [ compile ]
+    runs-on: [ arc-runner-set ]
+    environment:
+      name: ${{ needs.build.outputs.component }}
+
+    steps:
+      - name: Publish build
+        uses: ./.github/actions/upload-s3
+        with:
+          source: webitel-wfm-*.deb
+          aws-bucket-name: ${{ vars.DEB_AWS_BUCKET_NAME }}
+          aws-bucket-region: ${{ vars.DEB_AWS_DEFAULT_REGION }}
+          aws-secret-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          component: ${{ needs.build.outputs.component }}
+          codename: ${{ vars.DEB_CODENAME }}
+          gpg-private-key: ${{ secrets.REPO_SIGNING_KEY }}
+          gpg-passphrase: ${{ secrets.REPO_SIGNING_KEY_PASSPHRASE }}
+
   check-latest:
     name: Check latest release
     runs-on: [ arc-runner-set ]
@@ -52,7 +73,7 @@ jobs:
           fi
 
   staging:
-    name: Testing
+    name: Staging
     if: needs.check-latest.outputs.latest == 'true'
     needs: [ prepare, compile, check-latest ]
     uses: ./.github/workflows/3-deploy.yml
@@ -65,24 +86,3 @@ jobs:
       environment: staging
       service: ${{ needs.prepare.outputs.systemd-service }}
       source: ${{ needs.prepare.outputs.package-pattern }}
-
-  repository:
-    name: Publish .deb package
-    needs: [ compile ]
-    runs-on: [ arc-runner-set ]
-    environment:
-      name: ${{ needs.build.outputs.component }}
-
-    steps:
-      - name: Publish build
-        uses: ./.github/actions/upload-s3
-        with:
-          source: webitel-wfm-*.deb
-          aws-bucket-name: ${{ vars.DEB_AWS_BUCKET_NAME }}
-          aws-bucket-region: ${{ vars.DEB_AWS_DEFAULT_REGION }}
-          aws-secret-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          component: ${{ needs.build.outputs.component }}
-          codename: ${{ vars.DEB_CODENAME }}
-          gpg-private-key: ${{ secrets.REPO_SIGNING_KEY }}
-          gpg-passphrase: ${{ secrets.REPO_SIGNING_KEY_PASSPHRASE }}
