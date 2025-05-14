@@ -3,6 +3,10 @@ name: Prepare
 on:
   workflow_call:
     inputs:
+      only-dependencies:
+        default: false
+        type: boolean
+
       development-branch:
         description: Name of the development branch
         required: false
@@ -28,7 +32,7 @@ on:
         type: boolean
 
       package-pattern:
-        required: true
+        required: false
         type: string
 
       systemd-service:
@@ -55,6 +59,7 @@ on:
 jobs:
   set-vars:
     name: Set variables
+    if: inputs.only-dependencies == false
     runs-on: [ arc-runner-set ]
     outputs:
       package-pattern: ${{ steps.run.outputs.package-pattern }}
@@ -68,6 +73,7 @@ jobs:
 
   parse:
     name: Version
+    if: inputs.only-dependencies == false
     runs-on: [ arc-runner-set ]
     outputs:
       version: ${{ steps.parse-version.outputs.version }}
