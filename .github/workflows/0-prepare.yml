@@ -37,11 +37,11 @@ on:
 
     outputs:
       component:
-        value: ${{ jobs.parse-version.outputs.component }}
+        value: ${{ jobs.parse.outputs.component }}
         description: Extracted component
 
       version:
-        value: ${{ jobs.parse-version.outputs.version }}
+        value: ${{ jobs.parse.outputs.version }}
         description: Extracted version
 
       package-pattern:
