@@ -5,16 +5,14 @@ on:
     branches:
       - main
 
-env:
-  SYSTEMD_SERVICE_NAME: webitel-wfm
-  PACKAGE_PATTERN: webitel-wfm-*.deb
-
 jobs:
   prepare:
     name: Prepare
     uses: ./.github/workflows/0-prepare.yml
     with:
       wire: true
+      package-pattern: webitel-wfm-*.deb
+      systemd-service: webitel-wfm
 
   checks:
     name: Checks
@@ -26,12 +24,12 @@ jobs:
     needs: [ prepare ]
     uses: ./.github/workflows/2-build.yml
     with:
-      source: ${{ env.PACKAGE_PATTERN }}
-      version: ${{ needs.version.outputs.version }}
+      source: ${{ needs.prepare.outputs.package-pattern }}
+      version: ${{ needs.prepare.outputs.version }}
 
   development:
     name: Development
-    needs: [ compile ]
+    needs: [ prepare, compile ]
     uses: ./.github/workflows/3-deploy.yml
     secrets:
       host: ${{ secrets.DEVELOPMENT_HOST }}
@@ -40,12 +38,12 @@ jobs:
 
     with:
       environment: development
-      service: ${{ env.SYSTEMD_SERVICE_NAME }}
-      source: ${{ env.PACKAGE_PATTERN }}
+      service: ${{ needs.prepare.outputs.systemd-service }}
+      source: ${{ needs.prepare.outputs.package-pattern }}
 
   testing:
     name: Testing
-    needs: [ compile ]
+    needs: [ prepare, compile, development ]
     uses: ./.github/workflows/3-deploy.yml
     secrets:
       host: ${{ secrets.TESTING_HOST }}
@@ -54,12 +52,12 @@ jobs:
 
     with:
       environment: testing
-      service: ${{ env.SYSTEMD_SERVICE_NAME }}
-      source: ${{ env.PACKAGE_PATTERN }}
+      service: ${{ needs.prepare.outputs.systemd-service }}
+      source: ${{ needs.prepare.outputs.package-pattern }}
 
   repository:
     name: Publish .deb package
-    needs: [ compile, testing ]
+    needs: [ prepare, compile, testing ]
     runs-on: [ arc-runner-set ]
     environment: acceptance
     steps:
@@ -71,7 +69,7 @@ jobs:
       - name: Publish build
         uses: ./.github/actions/upload-s3
         with:
-          source: ${{ env.PACKAGE_PATTERN }}
+          source: ${{ needs.prepare.outputs.package-pattern }}
           aws-bucket-name: ${{ vars.DEB_AWS_BUCKET_NAME }}
           aws-bucket-region: ${{ vars.DEB_AWS_DEFAULT_REGION }}
           aws-secret-id: ${{ secrets.AWS_ACCESS_KEY_ID }}

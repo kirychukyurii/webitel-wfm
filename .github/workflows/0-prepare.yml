@@ -27,6 +27,14 @@ on:
         default: false
         type: boolean
 
+      package-pattern:
+        required: true
+        type: string
+
+      systemd-service:
+        required: false
+        type: string
+
     outputs:
       component:
         value: ${{ jobs.parse-version.outputs.component }}
@@ -36,7 +44,28 @@ on:
         value: ${{ jobs.parse-version.outputs.version }}
         description: Extracted version
 
+      package-pattern:
+        value: ${{ jobs.set-vars.outputs.package-pattern }}
+        description: Glob for package
+
+      systemd-service:
+        value: ${{ jobs.set-vars.outputs.systemd-service }}
+        description: Systemd service name
+
 jobs:
+  set-vars:
+    name: Set variables
+    runs-on: [ arc-runner-set ]
+    outputs:
+      package-pattern: ${{ steps.run.outputs.package-pattern }}
+      systemd-service: ${{ steps.run.outputs.systemd-service }}
+
+    steps:
+      - id: run
+        run: |
+          echo "package-pattern=webitel-wfm" >> $GITHUB_OUTPUT
+          echo "systemd-service=webitel-wfm" >> $GITHUB_OUTPUT
+
   parse:
     name: Version
     runs-on: [ arc-runner-set ]
