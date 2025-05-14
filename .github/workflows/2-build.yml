@@ -8,8 +8,8 @@ on:
         required: true
         type: string
 
-      path:
-        description: Path to upload artifacts from
+      source:
+        description: Build artifact (e.g., .deb package)
         required: true
         type: string
 
@@ -39,4 +39,4 @@ jobs:
         with:
           name: build-packages
           compression-level: 9
-          path: ${{ inputs.path }}
+          path: dist/${{ inputs.source }}
