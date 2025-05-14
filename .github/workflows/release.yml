@@ -25,7 +25,7 @@ jobs:
 
   repository:
     name: Publish .deb package
-    needs: [ compile ]
+    needs: [ prepare, compile ]
     runs-on: [ arc-runner-set ]
     environment:
       name: ${{ needs.prepare.outputs.component }}
@@ -44,7 +44,7 @@ jobs:
           aws-bucket-region: ${{ vars.DEB_AWS_DEFAULT_REGION }}
           aws-secret-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          component: ${{ needs.build.outputs.component }}
+          component: ${{ needs.prepare.outputs.component }}
           codename: ${{ vars.DEB_CODENAME }}
           gpg-private-key: ${{ secrets.REPO_SIGNING_KEY }}
           gpg-passphrase: ${{ secrets.REPO_SIGNING_KEY_PASSPHRASE }}
