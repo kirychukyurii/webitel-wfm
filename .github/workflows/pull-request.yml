@@ -10,7 +10,6 @@ on:
 jobs:
   lint:
     name: Lint code
-    needs: [ dependencies ]
     runs-on: [ arc-runner-set ]
     continue-on-error: true
     steps:
@@ -33,7 +32,6 @@ jobs:
 
   govulncheck:
     name: Check vulnerabilities
-    needs: [ dependencies ]
     runs-on: [ arc-runner-set ]
     continue-on-error: true
     steps:
@@ -60,7 +58,6 @@ jobs:
 
   test:
     name: Unit testing
-    needs: [ dependencies ]
     runs-on: [ arc-runner-set ]
     continue-on-error: true
     steps:
