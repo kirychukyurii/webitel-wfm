@@ -49,38 +49,9 @@ jobs:
           gpg-private-key: ${{ secrets.REPO_SIGNING_KEY }}
           gpg-passphrase: ${{ secrets.REPO_SIGNING_KEY_PASSPHRASE }}
 
-  check-latest:
-    name: Check latest release
-    runs-on: [ arc-runner-set ]
-    outputs:
-      latest: ${{ steps.check.outputs.latest }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Fetch all history so we can list branches
-
-      - name: For each git ref
-        id: check
-        run: |
-          current_branch="${GITHUB_REF#refs/heads/}"
-          echo "Current branch: $current_branch"
-
-          latest_branch=$(git ls-remote --heads origin 'v*.*' \
-            | awk '{print $2}' \
-            | sed 's|refs/heads/||' \
-            | sort -rV \
-            | head -n1)
-          
-          echo "Latest release branch: $latest_branch"
-          if [[ "$current_branch" == "$latest_branch" ]]; then
-            echo "latest=true" >> "$GITHUB_OUTPUT"
-          fi
-
   staging:
     name: Staging
-    if: needs.check-latest.outputs.latest == 'true'
-    needs: [ prepare, compile, check-latest ]
+    needs: [ prepare, compile ]
     uses: ./.github/workflows/3-deploy.yml
     secrets:
       host: ${{ secrets.STAGING_HOST }}
