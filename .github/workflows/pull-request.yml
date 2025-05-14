@@ -1,0 +1,19 @@
+name: PR
+
+on:
+  pull_request:
+
+jobs:
+  prepare:
+    name: Prepare
+    uses: ./.github/workflows/0-prepare.yml
+    with:
+      wire: true
+      only-dependencies: true
+
+  checks:
+    name: Checks
+    needs: [ prepare ]
+    uses: ./.github/workflows/1-checks.yml
+    with:
+      wire: true

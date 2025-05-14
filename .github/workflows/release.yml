@@ -6,67 +6,36 @@ on:
       - v*.* # Only release branches
 
 jobs:
-  build:
+  prepare:
+    name: Prepare
+    uses: ./.github/workflows/0-prepare.yml
+    with:
+      wire: true
+      package-pattern: webitel-wfm-*.deb
+      systemd-service: webitel-wfm
+
+  compile:
     name: Build
-    uses: ./.github/workflows/build.yml
+    needs: [ prepare ]
+    uses: ./.github/workflows/2-build.yml
+    with:
+      wire: true
+      source: ${{ needs.prepare.outputs.package-pattern }}
+      version: ${{ needs.prepare.outputs.version }}
 
-  check-latest:
-    name: Check latest release
-    runs-on: [ arc-runner-set ]
-    outputs:
-      latest: ${{ steps.check.outputs.latest }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Fetch all history so we can list branches
-
-      - id: check
-        name: For each git ref
-        run: |
-          current_branch="${GITHUB_REF#refs/heads/}"
-          echo "Current branch: $current_branch"
-
-          latest_branch=$(git ls-remote --heads origin 'v*.*' \
-            | awk '{print $2}' \
-            | sed 's|refs/heads/||' \
-            | sort -rV \
-            | head -n1)
-          
-          echo "Latest release branch: $latest_branch"
-          if [[ "$current_branch" == "$latest_branch" ]]; then
-            echo "latest=true" >> "$GITHUB_OUTPUT"
-          fi
-
-  # If it is the latest release - deploy it to stage environment.
-  deploy:
-    name: Staging
-    if: needs.check-latest.outputs.latest == 'true'
-    needs: [ build, check-latest ]
-    runs-on: [ arc-runner-set ]
-    environment: staging
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Deploy artifact
-        uses: ./.github/actions/deploy-build
-        with:
-          host: ${{ secrets.STAGING_HOST }}
-          user: ${{ secrets.SSH_USER }}
-          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: webitel-wfm-*.deb
-          service: webitel-wfm
-
-  # We don't have a prod environment for each release,
-  # so assume changes are tested.
-  # Upload release to the repository.
   repository:
     name: Publish .deb package
-    needs: [ build, deploy ]
+    needs: [ prepare, compile ]
     runs-on: [ arc-runner-set ]
-    environment: release
+    environment:
+      name: ${{ needs.prepare.outputs.component }}
+
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
       - name: Publish build
         uses: ./.github/actions/upload-s3
         with:
@@ -75,7 +44,21 @@ jobs:
           aws-bucket-region: ${{ vars.DEB_AWS_DEFAULT_REGION }}
           aws-secret-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          component: ${{ needs.build.outputs.component }}
+          component: ${{ needs.prepare.outputs.component }}
           codename: ${{ vars.DEB_CODENAME }}
           gpg-private-key: ${{ secrets.REPO_SIGNING_KEY }}
           gpg-passphrase: ${{ secrets.REPO_SIGNING_KEY_PASSPHRASE }}
+
+  staging:
+    name: Staging
+    needs: [ prepare, compile ]
+    uses: ./.github/workflows/3-deploy.yml
+    secrets:
+      host: ${{ secrets.STAGING_HOST }}
+      user: ${{ secrets.SSH_USER }}
+      private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    with:
+      environment: staging
+      service: ${{ needs.prepare.outputs.systemd-service }}
+      source: ${{ needs.prepare.outputs.package-pattern }}

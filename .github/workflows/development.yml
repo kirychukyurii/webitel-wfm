@@ -1,4 +1,4 @@
-name: Deploy
+name: Development
 
 on:
   push:
@@ -6,56 +6,61 @@ on:
       - main
 
 jobs:
-  build:
-    name: Build
-    uses: ./.github/workflows/build.yml
+  prepare:
+    name: Prepare
+    uses: ./.github/workflows/0-prepare.yml
+    with:
+      wire: true
+      package-pattern: webitel-wfm-*.deb
+      systemd-service: webitel-wfm
 
-  # Install .deb pkg from artifact
+  checks:
+    name: Checks
+    needs: [ prepare ]
+    uses: ./.github/workflows/1-checks.yml
+    with:
+      wire: true
+
+  compile:
+    name: Build
+    needs: [ prepare ]
+    uses: ./.github/workflows/2-build.yml
+    with:
+      wire: true
+      source: ${{ needs.prepare.outputs.package-pattern }}
+      version: ${{ needs.prepare.outputs.version }}
+
   development:
     name: Development
-    needs: [ build ]
-    runs-on: [ arc-runner-set ]
-    environment: development
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
+    needs: [ prepare, compile ]
+    uses: ./.github/workflows/3-deploy.yml
+    secrets:
+      host: ${{ secrets.DEVELOPMENT_HOST }}
+      user: ${{ secrets.SSH_USER }}
+      private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy artifact
-        uses: ./.github/actions/deploy-build
-        with:
-          host: ${{ secrets.DEVELOPMENT_HOST }}
-          user: ${{ secrets.SSH_USER }}
-          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: webitel-wfm-*.deb
-          service: webitel-wfm
+    with:
+      environment: development
+      service: ${{ needs.prepare.outputs.systemd-service }}
+      source: ${{ needs.prepare.outputs.package-pattern }}
 
-  # Request approves for build
-  # Install .deb pkg from artifact
   testing:
     name: Testing
-    needs: [ build, development ]
-    runs-on: [ arc-runner-set ]
-    environment: testing
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
+    needs: [ prepare, compile, development ]
+    uses: ./.github/workflows/3-deploy.yml
+    secrets:
+      host: ${{ secrets.TESTING_HOST }}
+      user: ${{ secrets.SSH_USER }}
+      private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Deploy artifact
-        uses: ./.github/actions/deploy-build
-        with:
-          host: ${{ secrets.TESTING_HOST }}
-          user: ${{ secrets.SSH_USER }}
-          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: webitel-wfm-*.deb
-          service: webitel-wfm
+    with:
+      environment: testing
+      service: ${{ needs.prepare.outputs.systemd-service }}
+      source: ${{ needs.prepare.outputs.package-pattern }}
 
   repository:
     name: Publish .deb package
-    needs: [ build, testing ]
+    needs: [ prepare, compile, testing ]
     runs-on: [ arc-runner-set ]
     environment: acceptance
     steps:
@@ -67,7 +72,7 @@ jobs:
       - name: Publish build
         uses: ./.github/actions/upload-s3
         with:
-          source: webitel-wfm-*.deb
+          source: ${{ needs.prepare.outputs.package-pattern }}
           aws-bucket-name: ${{ vars.DEB_AWS_BUCKET_NAME }}
           aws-bucket-region: ${{ vars.DEB_AWS_DEFAULT_REGION }}
           aws-secret-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
