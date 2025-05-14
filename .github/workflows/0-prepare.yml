@@ -63,8 +63,8 @@ jobs:
     steps:
       - id: run
         run: |
-          echo "package-pattern=webitel-wfm" >> $GITHUB_OUTPUT
-          echo "systemd-service=webitel-wfm" >> $GITHUB_OUTPUT
+          echo "package-pattern=${{ inputs.package-pattern }}" >> $GITHUB_OUTPUT
+          echo "systemd-service=${{ inputs.systemd-service }}" >> $GITHUB_OUTPUT
 
   parse:
     name: Version
