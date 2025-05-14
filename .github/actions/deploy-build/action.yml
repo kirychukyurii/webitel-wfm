@@ -22,27 +22,3 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Download build artifacts
-      uses: actions/download-artifact@v4
-      with:
-        name: build-packages
-
-    - name: Copy build
-      uses: appleboy/scp-action@v1.0.0
-      with:
-        host: ${{ inputs.host }}
-        username: ${{ inputs.user }}
-        key: ${{ inputs.private-key }}
-        source: ${{ inputs.source }}
-        target: ~/dist
-
-    - name: Install
-      uses: appleboy/ssh-action@v1.2.2
-      with:
-        host: ${{ inputs.host }}
-        username: ${{ inputs.user }}
-        key: ${{ inputs.private-key }}
-        script: |
-          sudo dpkg -i ~/dist/${{ inputs.source }}
-          rm ~/dist/${{ inputs.source }}
-          sudo systemctl restart ${{ inputs.service }}
