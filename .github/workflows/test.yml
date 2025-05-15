@@ -1,0 +1,35 @@
+name: test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup go
+        uses: actions/setup-go@v5
+
+      - name: go generate
+        run: go generate ./...
+
+      - name: upload code
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'artifact'
+          path: |
+            dummy-file-to-keep-directory-structure.txt
+            gen/go/*
+
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: download code
+        uses: actions/download-artifact@v4
+        with:
+          name: 'artifact'
