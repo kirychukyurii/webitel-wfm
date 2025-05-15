@@ -27,6 +27,7 @@ jobs:
             gen/go/*
 
   download:
+    needs: [ test ]
     runs-on: ubuntu-latest
     steps:
       - name: download code
