@@ -25,6 +25,7 @@ jobs:
           path: |
             dummy-file-to-keep-directory-structure.txt
             gen/go/*
+            assets
 
   download:
     needs: [ test ]
@@ -34,3 +35,6 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: 'artifact'
+
+      - name: tree
+        run: ls -R
