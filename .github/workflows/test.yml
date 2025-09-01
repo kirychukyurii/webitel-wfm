@@ -12,6 +12,13 @@ jobs:
       - name: checkout
         uses: actions/checkout@v4
 
+      - name: test
+        env:
+          DESC: ${{ github.event.repository.description }}
+        run: |
+          echo "DESC=$DESC"
+          echo "${{ github.event.repository.description }}"
+
       - name: setup go
         uses: actions/setup-go@v5
 
