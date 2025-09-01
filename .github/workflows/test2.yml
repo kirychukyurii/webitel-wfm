@@ -8,7 +8,7 @@ on:
 jobs:
   prepare:
     name: Prepare
-    uses: kirychukyurii/reusable-configs/.github/workflows/workflow.yml@e3dfc8fed16b7ef12050643b08e7fbbdddcc3647
+    uses: kirychukyurii/reusable-configs/.github/workflows/workflow.yml@364d788b7b5d7799be2a82461bb2314c203f9dd6
     with:
       triggered-branch: '${{ github.ref_name }}'
       development-branch: 'main'
